@@ -141,14 +141,10 @@ app.delete(`${API_ROOT}/posts/reset`, async (req, res) => {
 
   const reset_posts = [
     {
-      posts: [
-        {
-          uid: '986a9ae5-eea1-4fdc-a704-8dbb4a34eee8',
-          id: 1,
-          author: '야무',
-          body: '리액트 러닝 가이드!',
-        },
-      ],
+      uid: '986a9ae5-eea1-4fdc-a704-8dbb4a34eee8',
+      id: 1,
+      author: '야무',
+      body: '리액트 러닝 가이드!',
     },
   ];
 
