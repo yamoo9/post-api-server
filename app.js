@@ -136,12 +136,41 @@ app.put(`${API_ROOT}/posts/:id`, async (req, res) => {
   });
 });
 
+app.delete(`${API_ROOT}/posts/reset`, async (req, res) => {
+  APPLY_DELAY_TIME && (await delay(DELAY_TIME));
+
+  const reset_posts = [
+    {
+      posts: [
+        {
+          uid: '986a9ae5-eea1-4fdc-a704-8dbb4a34eee8',
+          id: 1,
+          author: '야무',
+          body: '리액트 러닝 가이드!',
+        },
+      ],
+    },
+  ];
+
+  await writeStoredPosts(reset_posts);
+
+  const storedPosts = await readStoredPosts();
+
+  res.status(200).json({
+    message: `포스트 리스트가 성공적으로 초기화되었습니다.`,
+    posts: storedPosts,
+  });
+});
+
 app.delete(`${API_ROOT}/posts/:id`, async (req, res) => {
   APPLY_DELAY_TIME && (await delay(DELAY_TIME));
 
   const existingPosts = await readStoredPosts();
 
   let { id } = req.params;
+
+  if (!id) return;
+
   id = parseInt(id, 10);
 
   const post = existingPosts.find((post) => post.id === id);
@@ -160,6 +189,10 @@ app.delete(`${API_ROOT}/posts/:id`, async (req, res) => {
     message: `포스트 "#${post.uid}"가 성공적으로 삭제되었습니다.`,
     post: {},
   });
+});
+
+app.get('*', (req, res) => {
+  res.redirect(`${API_ROOT}/posts`);
 });
 
 app.listen(PORT, () => {
