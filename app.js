@@ -28,7 +28,9 @@ app.get(`${API_ROOT}/posts`, async (req, res) => {
   if (author) {
     const authorName = decodeURIComponent(author);
     return res.status(200).json({
-      post: storedPosts.filter((post) => post.author === authorName),
+      post: storedPosts.filter(
+        (post) => post.author.toLowerCase() === authorName.toLowerCase()
+      ),
     });
   }
 
@@ -36,7 +38,9 @@ app.get(`${API_ROOT}/posts`, async (req, res) => {
   if (q) {
     const query = decodeURIComponent(q);
     return res.status(200).json({
-      post: storedPosts.filter((post) => post.body.includes(query)),
+      post: storedPosts.filter((post) =>
+        post.body.toLowerCase().includes(query.toLowerCase())
+      ),
     });
   }
 
@@ -101,10 +105,12 @@ app.post(`${API_ROOT}/posts`, async (req, res) => {
 app.put(`${API_ROOT}/posts/:id`, async (req, res) => {
   APPLY_DELAY_TIME && (await delay(DELAY_TIME));
   const existingPosts = await readStoredPosts();
-  const { id } = req.params;
+  let { id } = req.params;
+  id = parseInt(id, 10);
+
   const postData = req.body;
 
-  const post = existingPosts.find((post) => post.id === parseInt(id, 10));
+  const post = existingPosts.find((post) => post.id === id);
 
   if (!post) {
     return res.status(404).json({
@@ -130,13 +136,15 @@ app.put(`${API_ROOT}/posts/:id`, async (req, res) => {
   });
 });
 
-app.delete('/posts/:id', async (req, res) => {
+app.delete(`${API_ROOT}/posts/:id`, async (req, res) => {
   APPLY_DELAY_TIME && (await delay(DELAY_TIME));
 
   const existingPosts = await readStoredPosts();
 
-  const { id } = req.params;
-  const post = existingPosts.find((post) => post.id === parseInt(id, 10));
+  let { id } = req.params;
+  id = parseInt(id, 10);
+
+  const post = existingPosts.find((post) => post.id === id);
 
   if (!post) {
     return res.status(404).json({
@@ -144,9 +152,7 @@ app.delete('/posts/:id', async (req, res) => {
     });
   }
 
-  const updatedPosts = existingPosts.filter(
-    (post) => post.id !== parseInt(id, 10)
-  );
+  const updatedPosts = existingPosts.filter((post) => post.id !== id);
 
   await writeStoredPosts(updatedPosts);
 
